@@ -1,0 +1,46 @@
+---
+
+- name: Install required packages
+  ansible.builtin.packages:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ potos_basic_packages }}"
+
+- name: create local work dir
+  ansible.builtin.file:
+    path: '{{ potos_basic_ansible_workdir }}'
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: create local log dir
+  ansible.builtin.file:
+    path: '{{ potos_basics_ansible_logdir }}'
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: create logrotate entry for ansible-pull.log
+  ansible.builtin.template:
+    src: etc/logrotate.d/potos-ansible-pull.j2
+    dest: /etc/logrotate.d/potos-ansible-pull
+    owner: root
+    group: root
+    mode: 0644
+
+- name: add potos-ansible-pull script to cron.{{ item }}
+  ansible.builtin.template:
+    src: etc/cron/potos-ansible-pull.j2
+    dest: /etc/cron.{{ item }}/potos-ansible-pull
+    owner: root
+    group: root
+    mode: 0755
+  vars:
+    runtype: "{{ item }}"
+  loop: 
+    - 'hourly'
+    - 'daily'
+    - 'weekly'
+    - 'montly'

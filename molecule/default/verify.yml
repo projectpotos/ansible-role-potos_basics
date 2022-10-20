@@ -1,0 +1,13 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: no
+
+  tasks:
+  - name: check git works
+    ansible.builtin.shell:
+      cmd: git version
+    register: out
+    failed_when:
+      - not out.rc != 0

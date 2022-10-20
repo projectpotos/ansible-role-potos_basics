@@ -1,0 +1,5 @@
+---
+
+potos_basics_ansible_workdir: "/var/lib/potos/ansible"
+potos_basics_ansible_logdir: "/var/log/potos"
+potos_basics_playbook_version: "main"

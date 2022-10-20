@@ -1,0 +1,5 @@
+---
+
+potos_basic_packages:
+ - git
+ - ansible-core
