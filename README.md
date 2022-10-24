@@ -1,6 +1,6 @@
 # Ansible Role - Potos Basics
 
-A role to setup the basic potos functionallity like hourly ansible pull
+Role to manage the basic Potos Linux Client functionallity like hourly ansible pull
 
 [![Test](https://github.com/projectpotos/ansible-role-potos_basics/actions/workflows/test.yml/badge.svg)](https://github.com/projectpotos/ansible-role-potos_basics/actions/workflows/test.yml)
 
