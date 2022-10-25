@@ -33,7 +33,7 @@ ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg \
 exec {flockfd}<-/var/lock/potos-ansible.lock
 flock -x "$flockfd"
 ansible-playbook -i /etc/ansible/inventory/potos_inventory prepare.yml -e "potos_runtype={{ runtype }}"> /dev/null
-ansible-playbook -i /etc/ansible/inventory/potos_inventory playbook.yml -e "rlc4s_runtype={{ runtype }}"> /dev/null
+ansible-playbook -i /etc/ansible/inventory/potos_inventory playbook.yml -e "potos_runtype={{ runtype }}"> /dev/null
 exec {flockfd}<&-
 
 # Check for Ansible failures in ansible.log
