@@ -11,4 +11,4 @@
     register: out
     changed_when: false
     failed_when:
-      - not out.rc != 0
+      - out.rc != 0
