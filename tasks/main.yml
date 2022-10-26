@@ -1,14 +1,14 @@
 ---
 
 - name: install required packages
-  ansible.builtin.packages:
+  ansible.builtin.package:
     name: '{{ item }}'
     state: present
-  loop: '{{ potos_basic_packages }}'
+  loop: '{{ potos_basics_packages }}'
 
 - name: create local work dir
   ansible.builtin.file:
-    path: '{{ potos_basic_ansible_workdir }}'
+    path: '{{ potos_basics_ansible_workdir }}'
     owner: root
     group: root
     mode: 0750
@@ -43,4 +43,3 @@
     - 'hourly'
     - 'daily'
     - 'weekly'
-    - 'montly'

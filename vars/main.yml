@@ -1,6 +1,7 @@
 ---
 
 # basic packages to be installed on all potos clients
-potos_basic_packages:
+potos_basics_packages:
  - git
  - ansible-core
+ - anacron
