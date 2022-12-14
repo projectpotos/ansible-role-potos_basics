@@ -1,6 +1,6 @@
 ---
 
-- name: install required packages
+- name: install generally required packages
   ansible.builtin.package:
     name: '{{ item }}'
     state: present
@@ -14,6 +14,29 @@
     mode: 0750
     state: directory
 
+- name: check playbook out
+  ansible.builtin.git:
+    repo: "https://github.com/projectpotos/ansible-plays-potos.git"
+    dest: "{{ potos_basics_ansible_workdir }}"
+    version: "{{ potos_basics_playbook_version }}"
+
+- name: create ansible inventory
+  ansible.builtin.file:
+    dest: "{{ potos_basics_ansible_inventory | dirname }}"
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: create ansible inventory
+  ansible.builtin.copy:
+    dest: "{{ potos_basics_ansible_inventory }}"
+    content: "localhost ansible_connection=local"
+    force: false
+    owner: root
+    group: root
+    mode: 0640
+
 - name: create local log dir
   ansible.builtin.file:
     path: '{{ potos_basics_ansible_logdir }}'
@@ -22,24 +45,8 @@
     mode: 0750
     state: directory
 
-- name: create logrotate entry for ansible-pull.log
-  ansible.builtin.template:
-    src: 'etc/logrotate.d/potos-ansible-pull.j2'
-    dest: '/etc/logrotate.d/potos-ansible-pull'
-    owner: root
-    group: root
-    mode: 0644
+- name: ansible ansible-env
+  ansible.builtin.include_tasks: ansible-env.yml
 
-- name: add potos-ansible-pull script to cron.{{ item }}
-  ansible.builtin.template:
-    src: 'etc/cron/potos-ansible-pull.j2'
-    dest: '/etc/cron.{{ item }}/potos-ansible-pull'
-    owner: root
-    group: root
-    mode: 0755
-  vars:
-    runtype: '{{ item }}'
-  loop:
-    - 'hourly'
-    - 'daily'
-    - 'weekly'
+- name: ansible ansible-pull
+  ansible.builtin.include_tasks: ansible-pull.yml
