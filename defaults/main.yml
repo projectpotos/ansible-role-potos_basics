@@ -1,5 +1,21 @@
 ---
+potos_basics_client_name: "{{ potos_plays_client_short_name | default('potos') }}"
 
-potos_basics_ansible_workdir: '/var/lib/potos/ansible'
-potos_basics_ansible_logdir: '/var/log/potos'
+potos_basics_ansible_workdir: "/var/lib/{{ potos_basics_client_name | lower }}/ansible"
+potos_basics_ansible_logdir: "/var/log/{{ potos_basics_client_name | lower }}"
 potos_basics_playbook_version: 'main'
+
+potos_basics_ansible_inventory: "/etc/ansible/inventory/{{ potos_basics_client_name | lower }}_inventory"
+
+potos_basics_runtypes:
+  - runtype: 'daily'
+    on_calendar: 'daily'
+  - runtype: 'hourly'
+    on_calendar: 'hourly'
+  - runtype: 'setup'
+
+potos_basics_on_error_additional_lines:
+  - "Contact your local administrator at admin@example.com"
+
+potos_basics_enable_reboot_reminder: true
+potos_basics_reboot_reminder_days: 10

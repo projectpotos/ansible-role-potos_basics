@@ -1,0 +1,13 @@
+# {{ potos_basics_client_name }}-ansible-pull-{{ runtype }}.timer
+# {{ ansible_managed }}
+[Unit]
+Description=Runs ansible pull for {{ potos_basics_client_name }} client {{ runtype }}
+AssertPathExists={{ potos_basics_ansible_workdir }}
+
+[Timer]
+Unit={{ potos_basics_client_name | lower }}-ansible-pull@{{ runtype }}.service
+OnCalendar={{ on_calendar | default(runtype) }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target
