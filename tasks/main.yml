@@ -1,5 +1,10 @@
 ---
 
+- name: check if ansible-vault-key is installed
+  ansible.builtin.stat:
+    path: '/etc/potos/etc/potos/ansible_vault_key'
+  register: potos_basics_ansible_vault_key_check
+
 - name: install generally required packages
   ansible.builtin.package:
     name: '{{ item }}'
