@@ -142,8 +142,8 @@ else
   source bin/activate
 fi
 
-ansible-playbook -i {{ potos_basics_ansible_inventory }} prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
-ansible-playbook -i {{ potos_basics_ansible_inventory }} playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
+ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
+ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 
 deactivate
 
