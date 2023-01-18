@@ -5,32 +5,32 @@
   gather_facts: false
 
   tasks:
-  - name: check git works
-    ansible.builtin.command:  # noqa: command-instead-of-module
-      cmd: git version
-    register: out
-    changed_when: false
-    failed_when:
-      - out.rc != 0
+    - name: check git works
+      ansible.builtin.command:  # noqa: command-instead-of-module
+        cmd: git version
+      register: out
+      changed_when: false
+      failed_when:
+        - out.rc != 0
 
-  - name: check runscript installed
-    ansible.builtin.command:
-      cmd: "which potos-ansible-pull"
-    register: out
-    changed_when: false
-    failed_when:
-      - out.rc != 0
+    - name: check runscript installed
+      ansible.builtin.command:
+        cmd: "which potos-ansible-pull"
+      register: out
+      changed_when: false
+      failed_when:
+        - out.rc != 0
 
-  - name: Just force systemd to reread configs
-    ansible.builtin.systemd:
-      daemon_reload: yes
+    - name: Just force systemd to reread configs
+      ansible.builtin.systemd:
+        daemon_reload: yes
 
-  - name: Populate service facts
-    ansible.builtin.service_facts:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
 
-  - name: check systemd services are defined
-    ansible.builtin.assert:
-      that:
-        - ansible_facts.services['potos-ansible-pull@.service'] is defined
-        - ansible_facts.services['potos-ansible-pull@daily.service'] is defined
-        - ansible_facts.services['potos-ansible-pull@hourly.service'] is defined
+    - name: check systemd services are defined
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['potos-ansible-pull@.service'] is defined
+          - ansible_facts.services['potos-ansible-pull@daily.service'] is defined
+          - ansible_facts.services['potos-ansible-pull@hourly.service'] is defined
