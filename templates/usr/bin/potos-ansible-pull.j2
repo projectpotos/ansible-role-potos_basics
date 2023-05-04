@@ -99,10 +99,12 @@ while :; do
   shift
 done
 
+{% if not potos_basics_always_verbose | default(false) %}
 # if not verbose, pipe everything to /dev/null
 if ! $VERBOSE; then
     exec >/dev/null 2>&1
 fi
+{% endif %}
 
 # Check if working directory exists
 [ -d '{{ potos_basics_ansible_workdir }}' ] || mkdir -p {{ potos_basics_ansible_workdir }}

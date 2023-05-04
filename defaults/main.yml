@@ -14,6 +14,8 @@ potos_basics_runtypes:
     on_calendar: 'hourly'
   - runtype: 'setup'
 
+potos_basics_always_verbose: false
+
 potos_basics_on_error_additional_lines:
   - "Contact your local administrator at admin@example.com"
 
