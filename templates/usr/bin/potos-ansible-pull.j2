@@ -106,9 +106,8 @@ if ! $VERBOSE; then
 fi
 {% endif %}
 
-# Check if working directory exists
-[ -d '{{ potos_basics_ansible_workdir }}' ] || mkdir -p {{ potos_basics_ansible_workdir }}
-cd {{ potos_basics_ansible_workdir }}
+# Check if virtualenv directory exists
+[ -d '{{ potos_basics_ansible_virtenvdir }}' ] || /usr/bin/mkdir -p {{ potos_basics_ansible_virtenvdir }}
 
 # If directory is git repository, then pull latest changes
 if [ -d '.git' ] && [ -n "$(git remote)" ]; then
@@ -139,13 +138,9 @@ exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
 flock -x "$flockfd"
 
 # Create virtualenv if not exists
-if [[ -z "pyvenv.cfg" ]]; then
-  virtualenv .
-  source bin/activate
-  pip3 install ansible-core=={{ potos_basics_ansible_version }}
-else
-  source bin/activate
-fi
+/usr/bin/virtualenv {{ potos_basics_ansible_virtenvdir }}
+source  {{ potos_basics_ansible_virtenvdir }}/bin/activate
+pip3 install ansible-core=={{ potos_basics_ansible_version }}
 
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
