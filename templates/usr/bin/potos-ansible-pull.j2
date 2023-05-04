@@ -125,6 +125,9 @@ else
         {{ potos_basics_ansible_workdir }} 2>&1
 fi
 
+# Adjust ansible config with client
+/usr/bin/sed 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
+
 # Run Ansible with custom ansible.cfg, use flock to prevent concurrent runs
 ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg
 mkdir -p /var/lock
