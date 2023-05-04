@@ -125,13 +125,13 @@ fi
 
 # Run Ansible with custom ansible.cfg, use flock to prevent concurrent runs
 ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg
-mkdir -p /var/lock
-if [ ! -z /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
-  touch /var/lock/{{ potos_basics_client_name | lower }}.lock
+/usr/bin/mkdir -p /var/lock
+if [ ! -s /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
+  /usr/bin/touch /var/lock/{{ potos_basics_client_name | lower }}.lock
 fi
 
 exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
-flock -x "$flockfd"
+/usr/bin/flock -x "$flockfd"
 
 # Create virtualenv if not exists
 /usr/bin/virtualenv {{ potos_basics_ansible_virtenvdir }}
@@ -145,10 +145,10 @@ deactivate
 
 exec {flockfd}<&-
 
-logfile=$(grep 'log_path =' ansible.cfg | sed 's/log_path = //g')
+logfile=$(/usr/bin/grep 'log_path =' ansible.cfg | /usr/bin/sed 's/log_path = //g')
 
 # Check for Ansible failures in ansible.log
-if [[ "0" -ne "$(test -e "$logfile" && grep failed= "$logfile" | tail -n1 | sed -e 's/.*failed=\([0-9]\+\).*/\1/')" ]]; then
+if [[ "0" -ne "$(/usr/bin/test -e "$logfile" && /usr/bin/grep failed= "$logfile" | /usr/bin/tail -n1 | /usr/bin/sed -e 's/.*failed=\([0-9]\+\).*/\1/')" ]]; then
     ANSIBLE_MESSAGE="Attention Ansible $1 failed!
     {%- for line in potos_basics_on_error_additional_lines -%}
     {{ '\n' }}{{ line }}
@@ -158,9 +158,9 @@ if [[ "0" -ne "$(test -e "$logfile" && grep failed= "$logfile" | tail -n1 | sed 
 fi
 {% if potos_basics_enable_reboot_reminder %}
 # Check if machine has not been rebooted for more than {{ potos_basics_reboot_reminder_days }} days
-UPTIME_DATE=$(uptime --since | awk '{print $1}' | tr -d '-')
-TODAY=$(date +%Y%m%d)
-DAYS_DIFF=$(echo "( `date -d ${TODAY} +%s` - `date -d ${UPTIME_DATE} +%s`) / (24*3600)" | bc)
+UPTIME_DATE=$(/usr/bin/uptime --since | /usr/bin/awk '{print $1}' | /usr/bin/tr -d '-')
+TODAY=$(/usr/bin/date +%Y%m%d)
+DAYS_DIFF=$(/usr/bin/echo "( `/usr/bin/date -d ${TODAY} +%s` - `/usr/bin/date -d ${UPTIME_DATE} +%s`) / (24*3600)" | /usr/bin/bc)
 if [ "${DAYS_DIFF}" -gt "{{ potos_basics_reboot_reminder_days }}" ]
 then
     UPTIME_MESSAGE="Your `hostname` is up for ${DAYS_DIFF} days (> {{ potos_basics_reboot_reminder_days }})
