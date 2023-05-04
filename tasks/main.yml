@@ -33,7 +33,8 @@
     state: directory
 
 - name: get hostname
-  shell: hostname -f
+  ansible.builtin.command:
+    cmd: hostname -f
   register: potos_basics_hostname
   changed_when: false
 
