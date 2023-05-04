@@ -109,20 +109,16 @@ fi
 # Check if virtualenv directory exists
 [ -d '{{ potos_basics_ansible_virtenvdir }}' ] || /usr/bin/mkdir -p {{ potos_basics_ansible_virtenvdir }}
 
-# If directory is git repository, then pull latest changes
-if [ -d '.git' ] && [ -n "$(git remote)" ]; then
-    git pull origin {{ potos_basics_playbook_version }}  2>&1
-    # If git branch is wrong, checkout the correct one
-    if [ "$(git branch | grep -E '^\*' | awk '{print $2}')" != "{{ potos_basics_playbook_version }}" ]; then
-        git checkout {{ potos_basics_playbook_version }} 2>&1
-    fi
-# If directory is NOT git repository, then clone it
-else
-    git clone \
-        -b {{ potos_basics_playbook_version }} \
-        https://github.com/projectpotos/ansible-plays-potos.git \
-        {{ potos_basics_ansible_workdir }} 2>&1
-fi
+# Clear and create working directory
+/usr/bin/rm -rf {{ potos_basics_ansible_workdir }}
+/usr/bin/mkdir -p {{ potos_basics_ansible_workdir }}
+
+# Get latest playbook of given version
+/usr/bin/git clone \
+    --depth 1 --single-branch \
+    -b {{ potos_basics_playbook_version }} \
+    https://github.com/projectpotos/ansible-plays-potos.git \
+    {{ potos_basics_ansible_workdir }} 2>&1
 
 # Adjust ansible config with client
 /usr/bin/sed 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
