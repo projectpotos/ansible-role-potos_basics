@@ -7,7 +7,7 @@
 
 - name: install generally required packages
   ansible.builtin.package:
-    name: "{{ potos_basics_packages | join(' ') }}"
+    name: "{{ potos_basics_packages }}"
     state: "{{ potos_basics_packages_enforce_latest | ternary('latest', 'present') }}"
 
 - name: create local work dir
