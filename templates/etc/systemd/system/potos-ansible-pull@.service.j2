@@ -6,5 +6,5 @@ AssertPathExists={{ potos_basics_ansible_workdir }}
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/{{ potos_basics_client_name | lower }}-ansible-pull -r %i
+ExecStart=/usr/local/bin/{{ potos_basics_client_name | lower }}-ansible-pull -r %i
 

@@ -10,8 +10,8 @@
 
 - name: install execution script
   ansible.builtin.template:
-    src: 'usr/bin/potos-ansible-pull.j2'
-    dest: "/usr/bin/{{ potos_basics_client_name | lower }}-ansible-pull"
+    src: 'usr/local/bin/potos-ansible-pull.j2'
+    dest: "/usr/local/bin/{{ potos_basics_client_name | lower }}-ansible-pull"
     owner: root
     group: root
     mode: 0750
