@@ -35,6 +35,7 @@
 - name: get hostname
   shell: hostname -f
   register: potos_basics_hostname
+  changed_when: false
 
 - name: create ansible inventory
   ansible.builtin.copy:
