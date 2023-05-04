@@ -1,18 +1,20 @@
 ---
-- name: Install python and pip
-  ansible.builtin.package:
-    name: "{{ item }}"
-  loop:
-    - "python3"
-    - "python3-pip"
 
 - name: Install virtualenv
   ansible.builtin.pip:
     name: "virtualenv"
 
+- name: create local virtualenv dir
+  ansible.builtin.file:
+    path: '{{ potos_basics_ansible_virtenvdir }}'
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
 - name: Install Python env
   ansible.builtin.pip:
     name: "{{ item }}"
-    virtualenv: "{{ potos_basics_ansible_workdir }}"
+    virtualenv: "{{ potos_basics_ansible_virtenvdir }}"
   loop:
     - "ansible-core=={{ potos_basics_ansible_version }}"

@@ -106,37 +106,62 @@ if ! $VERBOSE; then
 fi
 {% endif %}
 
+# Check if tools exists
+function CheckToolAvailable {}
+  if [ ! -x $1 ]; then
+    echo "Required tool '{$1}' not available!"; exit 1;
+  fi
+}
+CheckToolAvailable /usr/bin/awk
+CheckToolAvailable /usr/bin/bc
+CheckToolAvailable /usr/bin/date
+CheckToolAvailable /usr/bin/echo
+CheckToolAvailable /usr/bin/flock
+CheckToolAvailable /usr/bin/git
+CheckToolAvailable /usr/bin/grep
+CheckToolAvailable /usr/bin/mkdir
+CheckToolAvailable /usr/bin/notify-send
+CheckToolAvailable /usr/bin/rm
+CheckToolAvailable /usr/bin/sed
+CheckToolAvailable /usr/bin/tail
+CheckToolAvailable /usr/bin/test
+CheckToolAvailable /usr/bin/touch
+CheckToolAvailable /usr/bin/tr
+CheckToolAvailable /usr/bin/uptime
+CheckToolAvailable /usr/bin/virtualenv
+CheckToolAvailable /usr/bin/wall
+
 # Check if virtualenv directory exists
-[ -d '{{ potos_basics_ansible_virtenvdir }}' ] || /usr/bin/mkdir -p {{ potos_basics_ansible_virtenvdir }}
+[ -d '{{ potos_basics_ansible_virtenvdir }}' ] || /usr/bin/mkdir -p {{ potos_basics_ansible_virtenvdir }} || die "Couldn't create VirtualEnv directory"
 
 # Clear and create working directory
-/usr/bin/rm -rf {{ potos_basics_ansible_workdir }}
-/usr/bin/mkdir -p {{ potos_basics_ansible_workdir }}
+/usr/bin/rm -rf {{ potos_basics_ansible_workdir }} || die "Couldn't create Ansible work directory"
+/usr/bin/mkdir -p {{ potos_basics_ansible_workdir }} || die "Couldn't create Ansible work directory"
 
 # Get latest playbook of given version
 /usr/bin/git clone \
     --depth 1 --single-branch \
     -b {{ potos_basics_playbook_version }} \
     https://github.com/projectpotos/ansible-plays-potos.git \
-    {{ potos_basics_ansible_workdir }} 2>&1
+    {{ potos_basics_ansible_workdir }} 2>&1 || die "Failed to checkout playbook repository"
 
 # Adjust ansible config with client
 /usr/bin/sed 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
 
 # Run Ansible with custom ansible.cfg, use flock to prevent concurrent runs
 ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg
-/usr/bin/mkdir -p /var/lock
-if [ ! -s /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
-  /usr/bin/touch /var/lock/{{ potos_basics_client_name | lower }}.lock
+/usr/bin/mkdir -p /var/lock || die "Failed create lock directory"
+if [ ! -f /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
+  /usr/bin/touch /var/lock/{{ potos_basics_client_name | lower }}.lock || die "Failed create lock file"
 fi
 
 exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
-/usr/bin/flock -x "$flockfd"
+/usr/bin/flock -x "$flockfd" || die "Failed to aquire lock"
 
 # Create virtualenv if not exists
-/usr/bin/virtualenv {{ potos_basics_ansible_virtenvdir }}
-source  {{ potos_basics_ansible_virtenvdir }}/bin/activate
-pip3 install ansible-core=={{ potos_basics_ansible_version }}
+/usr/bin/virtualenv {{ potos_basics_ansible_virtenvdir }} || die "Failed create virtualenv"
+source  {{ potos_basics_ansible_virtenvdir }}/bin/activate  || die "Failed activate virtualenv"
+pip3 install ansible-core=={{ potos_basics_ansible_version }} || die "Failed install ansible-core in virtualenv"
 
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"

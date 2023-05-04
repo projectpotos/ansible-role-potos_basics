@@ -2,7 +2,16 @@
 
 # basic packages to be installed on all potos clients
 potos_basics_packages:
- - git
+ - "git"                 # git
+ - "bc"                  # bc
+ - "util-linux"          # flock
+ - "libnotify-bin"       # notify-send
+ - "coreutils"           # tail, tr
+ - "procps"              # uptime
+ - "python3"             # python 3
+ - "python3-pip"         # pip for python3
+ - "python3-virtualenv"  # virtualenv for python3
+ - "bsdutils"            # wall
 
 # Ansible version to be used
 potos_basics_ansible_version: "2.12.3"
