@@ -7,9 +7,8 @@
 
 - name: install generally required packages
   ansible.builtin.package:
-    name: '{{ item }}'
-    state: present
-  loop: '{{ potos_basics_packages }}'
+    name: "{{ potos_basics_packages }}"
+    state: "{{ potos_basics_packages_enforce_latest | ternary('latest', 'present') }}"
 
 - name: create local work dir
   ansible.builtin.file:
@@ -33,10 +32,16 @@
     mode: 0750
     state: directory
 
+- name: get hostname
+  ansible.builtin.command:
+    cmd: hostname -f
+  register: potos_basics_hostname
+  changed_when: false
+
 - name: create ansible inventory
   ansible.builtin.copy:
     dest: "{{ potos_basics_ansible_inventory }}"
-    content: "localhost ansible_connection=local"
+    content: "{{ potos_basics_hostname }} ansible_connection=local"
     force: false
     owner: root
     group: root
@@ -55,3 +60,6 @@
 
 - name: ansible ansible-pull
   ansible.builtin.include_tasks: ansible-pull.yml
+
+- name: legacy cleanup
+  ansible.builtin.include_tasks: legacy-cleanup.yml

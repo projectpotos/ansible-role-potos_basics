@@ -1,0 +1,6 @@
+---
+
+- name: remove old execution script
+  ansible.builtin.file:
+    path: "/usr/bin/{{ potos_basics_client_name | lower }}-ansible-pull"
+    state: absent
