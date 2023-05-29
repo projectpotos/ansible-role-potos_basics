@@ -163,6 +163,7 @@ exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
 source  {{ potos_basics_ansible_virtenvdir }}/bin/activate  || die "Failed activate virtualenv"
 pip3 install ansible-core=={{ potos_basics_ansible_version }} || die "Failed install ansible-core in virtualenv"
 
+cd /var/lib/{{ potos_basics_client_name }}/ansible
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 
