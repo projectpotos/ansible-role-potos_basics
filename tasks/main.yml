@@ -41,7 +41,7 @@
 - name: create ansible inventory
   ansible.builtin.copy:
     dest: "{{ potos_basics_ansible_inventory }}"
-    content: "{{ potos_basics_hostname }} ansible_connection=local"
+    content: "{{ potos_basics_hostname.stdout }} ansible_connection=local"
     force: false
     owner: root
     group: root

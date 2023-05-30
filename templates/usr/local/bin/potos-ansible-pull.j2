@@ -146,7 +146,7 @@ CheckToolAvailable /usr/bin/wall
     {{ potos_basics_ansible_workdir }} 2>&1 || die "Failed to checkout playbook repository"
 
 # Adjust ansible config with client
-/usr/bin/sed 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
+/usr/bin/sed -i 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
 
 # Run Ansible with custom ansible.cfg, use flock to prevent concurrent runs
 ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg
@@ -163,6 +163,7 @@ exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
 source  {{ potos_basics_ansible_virtenvdir }}/bin/activate  || die "Failed activate virtualenv"
 pip3 install ansible-core=={{ potos_basics_ansible_version }} || die "Failed install ansible-core in virtualenv"
 
+cd /var/lib/{{ potos_basics_client_name }}/ansible
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
 
