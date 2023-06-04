@@ -15,6 +15,3 @@ potos_basics_packages:
 
 # Ansible version to be used
 potos_basics_ansible_version: "2.12.3"
-
-# Runtype variable name:
-potos_basics_ansible_runtype_var_name: "{{ potos_basics_client_name | lower }}_runtype"
