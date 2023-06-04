@@ -82,9 +82,9 @@ while :; do
 {%- endif -%}
 {%- endfor -%}"
       else
-        RUN_TYPE=$OPTARG
+        RUN_TYPE=$2
       fi
-      shift
+      shift 2
       ;;
     --) # end of all options
       shift
