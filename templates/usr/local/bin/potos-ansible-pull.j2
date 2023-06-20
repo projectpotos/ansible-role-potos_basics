@@ -82,9 +82,9 @@ while :; do
 {%- endif -%}
 {%- endfor -%}"
       else
-        RUN_TYPE=$OPTARG
+        RUN_TYPE=$2
       fi
-      shift
+      shift 2
       ;;
     --) # end of all options
       shift
@@ -164,8 +164,8 @@ source  {{ potos_basics_ansible_virtenvdir }}/bin/activate  || die "Failed activ
 pip3 install ansible-core=={{ potos_basics_ansible_version }} || die "Failed install ansible-core in virtualenv"
 
 cd /var/lib/{{ potos_basics_client_name }}/ansible
-ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/prepare.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
-ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/playbook.yml -e "{{ potos_basics_ansible_runtype_var_name }}=$RUN_TYPE"
+ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/prepare.yml -e "potos_runtype=$RUN_TYPE"
+ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vault-password-file=/etc/potos/ansible_vault_key {% endif %}-i {{ potos_basics_ansible_inventory }} {{ potos_basics_ansible_workdir }}/playbook.yml -e "potos_runtype=$RUN_TYPE"
 
 deactivate
 
