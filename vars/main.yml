@@ -14,4 +14,4 @@ potos_basics_packages:
  - "bsdutils"            # wall
 
 # Ansible version to be used
-potos_basics_ansible_version: "2.12.3"
+potos_basics_ansible_version: "2.12.10"
