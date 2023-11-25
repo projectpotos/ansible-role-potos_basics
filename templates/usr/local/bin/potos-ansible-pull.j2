@@ -3,7 +3,7 @@
 #
 # Pulls the latest potos playbooks and then continues to run them against localhost.
 # to enforce {{ potos_basics_client_name }} client specification.
-# Notification and warning is displayed to the end user if 
+# Notification and warning is displayed to the end user if
 {% if potos_basics_enable_reboot_reminder %}
 #  * machine has not been rebooted for more than {{ potos_basics_reboot_reminder_days }} days
 {% endif %}
@@ -130,6 +130,19 @@ CheckToolAvailable /usr/bin/tr
 CheckToolAvailable /usr/bin/uptime
 CheckToolAvailable /usr/bin/virtualenv
 CheckToolAvailable /usr/bin/wall
+CheckToolAvailable /usr/bin/nmcli
+
+# use flock to prevent concurrent runs
+/usr/bin/mkdir -p /var/lock || die "Failed create lock directory"
+if [ ! -f /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
+  /usr/bin/touch /var/lock/{{ potos_basics_client_name | lower }}.lock || die "Failed create lock file"
+fi
+
+exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
+/usr/bin/flock -n "$flockfd" || die "Other instance already running, aborting"
+
+# Check connectivity
+[ $( LANG=C /usr/bin/nmcli -g CONNECTIVITY g status ) == "full" ] || die "Insufficient connectivity, aborting"
 
 # Check if virtualenv directory exists
 [ -d '{{ potos_basics_ansible_virtenvdir }}' ] || /usr/bin/mkdir -p {{ potos_basics_ansible_virtenvdir }} || die "Couldn't create VirtualEnv directory"
@@ -148,15 +161,8 @@ CheckToolAvailable /usr/bin/wall
 # Adjust ansible config with client
 /usr/bin/sed -i 's|/var/log/potos|{{ potos_basics_ansible_logdir }}|' {{ potos_basics_ansible_workdir }}/ansible.cfg
 
-# Run Ansible with custom ansible.cfg, use flock to prevent concurrent runs
+# Run Ansible with custom ansible.cfg
 ANSIBLE_CONFIG={{ potos_basics_ansible_workdir }}/ansible.cfg
-/usr/bin/mkdir -p /var/lock || die "Failed create lock directory"
-if [ ! -f /var/lock/{{ potos_basics_client_name | lower }}.lock ]; then
-  /usr/bin/touch /var/lock/{{ potos_basics_client_name | lower }}.lock || die "Failed create lock file"
-fi
-
-exec {flockfd}</var/lock/{{ potos_basics_client_name | lower }}.lock
-/usr/bin/flock -x "$flockfd" || die "Failed to aquire lock"
 
 # Create virtualenv if not exists
 /usr/bin/virtualenv {{ potos_basics_ansible_virtenvdir }} || die "Failed create virtualenv"
@@ -169,8 +175,6 @@ ansible-playbook {% if potos_basics_ansible_vault_key_check.stat.exists %}--vaul
 
 deactivate
 
-exec {flockfd}<&-
-
 logfile=$(/usr/bin/grep 'log_path =' ansible.cfg | /usr/bin/sed 's/log_path = //g')
 
 # Check for Ansible failures in ansible.log
@@ -182,6 +186,8 @@ if [[ "0" -ne "$(/usr/bin/test -e "$logfile" && /usr/bin/grep failed= "$logfile"
     /usr/bin/notify-send -u critical --expire-time=0 "${ANSIBLE_MESSAGE}"
     /usr/bin/wall "${ANSIBLE_MESSAGE}"
 fi
+
+exec {flockfd}<&-
 {% if potos_basics_enable_reboot_reminder %}
 # Check if machine has not been rebooted for more than {{ potos_basics_reboot_reminder_days }} days
 UPTIME_DATE=$(/usr/bin/uptime --since | /usr/bin/awk '{print $1}' | /usr/bin/tr -d '-')
